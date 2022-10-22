@@ -1,0 +1,173 @@
+header:
+  version: 12
+distro: poky
+build_system: oe
+machine: raspberrypi3-64
+target: core-image-minimal
+#target: -c do_cleansstate flutter-engine-release
+#target: -c do_cleansstate flutter-gallery-release
+#target: -c do_cleansstate flutter-linux-plugins-release
+#target: -c do_cleansstate flutter-objectbox-benchapp-release
+#target: -c do_cleansstate flutter-secure-storage-example-release
+
+bblayers_conf_header:
+  custom-bblayers-conf: |
+    #LCONF_VERSION = "7"
+    POKY_BBLAYERS_CONF_VERSION = "2"
+
+local_conf_header:
+  custom-local-conf: |
+    PACKAGE_CLASSES ?= "package_rpm"
+    EXTRA_IMAGE_FEATURES ?= "debug-tweaks"
+    USER_CLASSES ?= "buildstats"
+    PATCHRESOLVE = "noop"
+    BB_DISKMON_DIRS ??= "\
+                         STOPTASKS,${TMPDIR},1G,100K \
+                         STOPTASKS,${DL_DIR},1G,100K \
+                         STOPTASKS,${SSTATE_DIR},1G,100K \
+                         STOPTASKS,/tmp,100M,100K \
+                         HALT,${TMPDIR},100M,1K \
+                         HALT,${DL_DIR},100M,1K \
+                         HALT,${SSTATE_DIR},100M,1K \
+                         HALT,/tmp,10M,1K"
+
+    PACKAGECONFIG:append:pn-qemu-system-native = " sdl"
+    CONF_VERSION = "2"
+    INHERIT:append = " rm_work"
+
+    INIT_MANAGER = "systemd"
+    DISTRO_FEATURES:remove = "sysvinit x11 usbgadget vulkan"
+    DISTRO_FEATURES:append = " alsa bluetooth usbhost opengl wifi pam"
+
+    IMAGE_INSTALL:append = "     kernel-module-bridge bridge-utils     openvpn     systemd-analyze     systemd-bash-completion     coreutils     curl     iproute2     nftables     lsof     ntp ntp-tickadj     procps     sysfsutils     tcpdump     util-linux     util-linux-blkid     zip     perl-modules     python3-modules     strace "
+
+    COMBINED_FEATURES += "alsa "
+    LINUX_KERNEL_TYPE = "preempt-rt"
+    CMDLINE_DEBUG = "quiet"
+
+    GPU_MEM = "64"
+    DISPMANX_OFFLINE = "1"
+    DISABLE_OVERSCAN = "1"
+    DISABLE_RPI_BOOT_LOGO = "1"
+    DISABLE_SPLASH = "1"
+    MAGE_FEATURES:remove = "splash"
+
+    ENABLE_SPI_BUS = "1"
+    ENABLE_I2C = "1"
+    KERNEL_MODULE_AUTOLOAD:rpi:append = " i2c-dev i2c-bcm2708"
+    ENABLE_UART = "1"
+    SERIAL_CONSOLES = "115200;ttyAMA0"
+
+    PREFERRED_PROVIDER:libserialport = "6f9b03e"
+    PREFERRED_PROVIDER:jpeg = "libjpeg-turbo"
+    PREFERRED_PROVIDER:jpeg-native = "libjpeg-turbo-native"
+
+    ENABLE_BINARY_LOCALE_GENERATION = "1"
+
+    #this may not be needed anymore (provided by mata-integration-extras?)
+    GLIBC_GENERATE_LOCALES:append = " en_US.UTF-8 es_US.UTF-8 en_GB.UTF-8"
+    IMAGE_LINGUAS:append = " en-us en-gb es-us"
+    DEFAULT_TIMEZONE = "America/Los_Angeles"
+
+    #PACKAGECONFIG:append:pn-ffmpeg = " openssl"
+    #IMAGE_INSTALL:append = "\
+    #                        default-language-en-us-utf8 \
+    #                        tzdata-americas \
+    #                        tzdata-core \
+    #                        ivi-homescreen-release \
+    #                        flutter-gallery-release \
+    #                        flutter-secure-storage-example-release \
+    #                        flutter-video-player-example-release \
+    #                        flutter-objectbox-benchapp-release \
+    #                        flutter-pi-release \
+    #                        "
+    CORE_IMAGE_EXTRA_INSTALL += " \
+                                 flutter-pi \
+                                 flutter-drm-gbm-backend \
+                                 "
+
+    LICENSE_FLAGS_ACCEPTED += " commercial"
+
+repos:
+
+  poky:
+    url: "https://git.yoctoproject.org/git/poky.git"
+    refspec: "kirkstone" #pin to specific sha2? kirkstone:24a3f7b3648185e33133f5d96b184a6cb6524f3d
+    #upstream: "kirkstone"
+    path: "sources/poky"
+    layers:
+      meta-poky:
+      meta:
+      meta-yocto-bsp:
+
+  meta-openembedded:
+    url: "https://github.com/openembedded/meta-openembedded.git"
+    refspec: "kirkstone" #pin to specific sha2? kirkstone:744a4b6eda88b9a9ca1cf0df6e18be384d9054e3
+    #upstream: "kirkstone"
+    path: "sources/meta-openembedded"
+    layers:
+      meta-oe:
+      meta-filesystems:
+      meta-networking:
+      meta-multimedia:
+      meta-python:
+      meta-perl:
+
+  meta-security:
+    url: "https://git.yoctoproject.org/git/meta-security.git"
+    refspec: "kirkstone" #pin to specific sha2??? kirkstone:c79262a30bd385f5dbb009ef8704a1a01644528e
+    #upstream: "kirkstone"
+    path: "sources/meta-security"
+
+  meta-selinux:
+    url: "https://git.yoctoproject.org/git/meta-selinux.git"
+    refspec: "kirkstone" #pin to specific sha2? kirkstone:a401f4b2816a0b41ce8d9351542658c721935bcd
+    #upstream: "kirkstone"
+    path: "sources/meta-selinux"
+
+
+  meta-raspberrypi:
+    url: "https://github.com/agherzan/meta-raspberrypi.git"
+    refspec: "kirkstone" #pin to specific sha2 kirkstone:dacad9302a92b0b7edf8546cdcad1f8ef753e462
+    #upstream: "kirkstone"
+    path: "sources/meta-raspberrypi"
+
+  meta-clang:
+    url: "https://github.com/kraj/meta-clang.git"
+    #refspec: "85d956d95401479ca666139e31f662f60c156d5f" #update to latest?
+    refspec: "kirkstone" #pin to specific sha2 kirkstone:c728c3f9168c8a4ed05163a51dd48ca1ad8ac21d
+    #upstream: "kirkstone"
+    path: "sources/meta-clang"
+
+  meta-flutter:
+    url: "https://github.com/meta-flutter/meta-flutter.git"
+    refspec: "kirkstone" #pin to specific sha2 kirkstone:d6ed7772d354721fb772a521fb21dd9bc55934ec
+    #upstream: "kirkstone"
+    path: "sources/meta-flutter"
+
+  meta-flutter-rpi:
+    url: "https://github.com/meta-flutter/meta-flutter-rpi.git"
+    refspec: "kirkstone" #pin to specific sha2 kirkstone:db3504e93905dfad2862575edba5b371d0d92eb5
+    #upstream: "kirkstone"
+    path: "sources/meta-flutter-rpi"
+
+  meta-integration-extras:
+    url: "https://github.com/jwinarske/meta-integration-extras.git"
+    refspec: "kirkstone" #pin to specific sha2 kirkstone:94b56988b8908c8ba4272586bbea730e04b1c025
+    #upstream: "kirkstone"
+    path: "sources/meta-integration-extras"
+
+  meta-vulkan:
+    url: "https://github.com/jwinarske/meta-vulkan.git"
+    refspec: "kirkstone" #pin to specific sha2 / is it needed at all?
+    #upstream: "kirkstone"
+    path: "sources/meta-vulkan"
+    layers:
+      meta-vulkan: excluded
+
+  meta-webthings:
+    url: "https://github.com/meta-webthings/meta-webthings.git"
+    refspec: "kirkstone" #pin to specific sha2 kirkstone:e2e6028084b644dfcd25b7bc7d5ed46c400dfc4e
+    #upstream: "kirkstone"
+    path: "sources/meta-webthings"
+
