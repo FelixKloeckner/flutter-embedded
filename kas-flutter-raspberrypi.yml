@@ -31,7 +31,7 @@ local_conf_header:
 
     INIT_MANAGER = "systemd"
     DISTRO_FEATURES:remove = "sysvinit x11 usbgadget vulkan"
-    DISTRO_FEATURES:append = " alsa bluetooth usbhost opengl wifi pam"
+    DISTRO_FEATURES:append = " alsa bluetooth usbhost opengl wifi pam security"
 
     IMAGE_INSTALL:append = "     kernel-module-bridge bridge-utils     openvpn     systemd-analyze     systemd-bash-completion     coreutils     curl     iproute2     nftables     lsof     ntp ntp-tickadj     procps     sysfsutils     tcpdump     util-linux     util-linux-blkid     zip     perl-modules     python3-modules     strace "
 
