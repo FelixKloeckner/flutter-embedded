@@ -4,15 +4,9 @@ distro: poky
 build_system: oe
 machine: raspberrypi3-64
 target: core-image-minimal
-#target: -c do_cleansstate flutter-engine-release
-#target: -c do_cleansstate flutter-gallery-release
-#target: -c do_cleansstate flutter-linux-plugins-release
-#target: -c do_cleansstate flutter-objectbox-benchapp-release
-#target: -c do_cleansstate flutter-secure-storage-example-release
 
 bblayers_conf_header:
   custom-bblayers-conf: |
-    #LCONF_VERSION = "7"
     POKY_BBLAYERS_CONF_VERSION = "2"
 
 local_conf_header:
@@ -64,24 +58,8 @@ local_conf_header:
 
     ENABLE_BINARY_LOCALE_GENERATION = "1"
 
-    #this may not be needed anymore (provided by mata-integration-extras?)
-    GLIBC_GENERATE_LOCALES:append = " en_US.UTF-8 es_US.UTF-8 en_GB.UTF-8"
-    IMAGE_LINGUAS:append = " en-us en-gb es-us"
-    DEFAULT_TIMEZONE = "America/Los_Angeles"
-
-    #PACKAGECONFIG:append:pn-ffmpeg = " openssl"
-    #IMAGE_INSTALL:append = "\
-    #                        default-language-en-us-utf8 \
-    #                        tzdata-americas \
-    #                        tzdata-core \
-    #                        ivi-homescreen-release \
-    #                        flutter-gallery-release \
-    #                        flutter-secure-storage-example-release \
-    #                        flutter-video-player-example-release \
-    #                        flutter-objectbox-benchapp-release \
-    #                        flutter-pi-release \
-    #                        "
     CORE_IMAGE_EXTRA_INSTALL += " \
+                                 flutter-gallery \
                                  flutter-pi \
                                  flutter-drm-gbm-backend \
                                  "
@@ -134,7 +112,6 @@ repos:
 
   meta-clang:
     url: "https://github.com/kraj/meta-clang.git"
-    #refspec: "85d956d95401479ca666139e31f662f60c156d5f" #update to latest?
     refspec: "kirkstone" #pin to specific sha2 kirkstone:c728c3f9168c8a4ed05163a51dd48ca1ad8ac21d
     #upstream: "kirkstone"
     path: "sources/meta-clang"
@@ -156,14 +133,6 @@ repos:
     refspec: "kirkstone" #pin to specific sha2 kirkstone:94b56988b8908c8ba4272586bbea730e04b1c025
     #upstream: "kirkstone"
     path: "sources/meta-integration-extras"
-
-  meta-vulkan:
-    url: "https://github.com/jwinarske/meta-vulkan.git"
-    refspec: "kirkstone" #pin to specific sha2 / is it needed at all?
-    #upstream: "kirkstone"
-    path: "sources/meta-vulkan"
-    layers:
-      meta-vulkan: excluded
 
   meta-webthings:
     url: "https://github.com/meta-webthings/meta-webthings.git"
